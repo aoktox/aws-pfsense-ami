@@ -86,25 +86,5 @@
             "type": "shell",
             "script": "config/provisioner.sh"
         }
-    ],
-    "post-processors": [
-        [
-            {
-                "type": "amazon-import",
-                "format": "vmdk",
-                "region": "us-west-2",
-                "role_name": "vmimport",
-                "s3_bucket_name": "vmimport-input-29621e4ae6dd3cd3",
-                "s3_encryption": "AES256",
-                "ami_name": "{{user `vm_name`}}_{{timestamp}}",
-                "ami_encrypt": true,
-                "license_type": "BYOL",
-                "ami_description": "{{user `iso_name`}}",
-                "tags": {
-                    "Name": "{{user `vm_name`}}",
-                    "Description": "packer amazon-import {{timestamp}}"
-                }
-            }
-        ]
     ]
 }
