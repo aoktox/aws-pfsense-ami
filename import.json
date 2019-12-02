@@ -1,0 +1,8 @@
+{
+    "Description": "pfSense CE 2.4.4",
+    "Format": "vmdk",
+    "UserBucket": {
+        "S3Bucket": "BUCKET_PLACEHOLDER",
+        "S3Key": "KEY_PLACEHOLDER"
+    }
+}

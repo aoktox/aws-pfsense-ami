@@ -1,0 +1,110 @@
+{
+    "variables": {
+        "vm_name": "pfSense-CE-2.4.4",
+        "iso_name": "pfSense-CE-2.4.4-RELEASE-p3-amd64",
+        "iso_checksum": "e3d67a8d45e37fe3fcbad8a89206b85dad3b187db60a3a14347384891e1b2e31"
+    },
+    "builders": [
+        {
+            "type": "virtualbox-iso",
+            "format": "ovf",
+            "vm_name": "{{user `vm_name`}}_{{timestamp}}",
+            "guest_additions_mode": "disable",
+            "guest_os_type": "FreeBSD_64",
+            "http_directory": "config",
+            "http_port_min": "8100",
+            "boot_wait": "30s",
+            "boot_command": [
+                "<wait2><enter>",
+                "<wait1><enter>",
+                "<wait1><enter>",
+                "<wait1><enter>",
+                "<wait20><left>",
+                "<enter>",
+                "cp /conf.default/config.xml /conf/config.xml<enter>",
+                "reboot<enter><wait90>",
+                "8<enter>",
+                "/usr/local/bin/curl http://{{ .HTTPIP }}:{{ .HTTPPort }}/config.xml > /conf/config.xml<wait5><enter>",
+                "reboot<enter>"
+            ],
+            "disk_size": "4096",
+            "iso_url": "iso/{{user `iso_name`}}.iso",
+            "iso_checksum_type": "sha256",
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "shutdown_command": "shutdown -p now",
+            "ssh_port": "22",
+            "ssh_username": "root",
+            "ssh_password": "pfsense",
+            "ssh_wait_timeout": "3600s",
+            "output_directory": "output",
+            "headless": "false",
+            "vrdp_bind_address": "127.0.0.1",
+            "vrdp_port_min": "3389",
+            "vrdp_port_max": "3389",
+            "vboxmanage": [
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--boot1",
+                    "disk"
+                ],
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--boot2",
+                    "dvd"
+                ],
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--cpus",
+                    "1"
+                ],
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--memory",
+                    "1024"
+                ],
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--natpf1",
+                    "https,tcp,,7373,,7373"
+                ],
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--nic2",
+                    "intnet"
+                ]
+            ]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "config/provisioner.sh"
+        }
+    ],
+    "post-processors": [
+        [
+            {
+                "type": "amazon-import",
+                "format": "vmdk",
+                "region": "us-west-2",
+                "role_name": "vmimport",
+                "s3_bucket_name": "vmimport-input-29621e4ae6dd3cd3",
+                "s3_encryption": "AES256",
+                "ami_name": "{{user `vm_name`}}_{{timestamp}}",
+                "ami_encrypt": true,
+                "license_type": "BYOL",
+                "ami_description": "{{user `iso_name`}}",
+                "tags": {
+                    "Name": "{{user `vm_name`}}",
+                    "Description": "packer amazon-import {{timestamp}}"
+                }
+            }
+        ]
+    ]
+}
