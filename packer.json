@@ -25,6 +25,7 @@
                 "reboot<enter><wait90>",
                 "8<enter>",
                 "/usr/local/bin/curl http://{{ .HTTPIP }}:{{ .HTTPPort }}/config.xml > /conf/config.xml<wait5><enter>",
+                "cp /conf/config.xml /conf/config.xml.default<enter>",
                 "reboot<enter>"
             ],
             "disk_size": "4096",
