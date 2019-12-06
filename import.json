@@ -2,7 +2,7 @@
     "Description": "pfSense CE 2.4.4",
     "Format": "vmdk",
     "UserBucket": {
-        "S3Bucket": "BUCKET_PLACEHOLDER",
-        "S3Key": "KEY_PLACEHOLDER"
+        "S3Bucket": "vmimport-input-29621e4ae6dd3cd3",
+        "S3Key": "pfSense-CE-2.4.4_1575617122-disk001.vmdk"
     }
 }
