@@ -1,0 +1,91 @@
+{
+  "builders": [
+    {
+      "boot_command": [
+        "<wait5><enter>",
+        "<wait5><enter>",
+        "<wait5><enter>",
+        "<wait5><down>",
+        "<wait5><enter>",
+        "<wait5><left>",
+        "<wait5><enter>",
+        "<wait5><enter>",
+        "<wait5><down>",
+        "<wait5><enter>",
+        "<wait5><enter>",
+        "<wait5><enter>",
+        "<wait10><wait10><wait10><wait10><enter>",
+        "<wait5><enter>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>",
+        "8<wait5><enter>",
+        "curl http://{{ .HTTPIP }}:{{ .HTTPPort }}/config.xml >/conf/config.xml<wait5><enter>",
+        "reboot<wait5><enter>"
+      ],
+      "boot_wait": "30s",
+      "disk_size": "4096",
+      "format": "ovf",
+      "guest_additions_mode": "disable",
+      "guest_os_type": "FreeBSD_64",
+      "headless": "true",
+      "http_directory": "config",
+      "http_port_min": "8100",
+      "iso_checksum": "f6520bb14a5e690c6533e4e8fbf4a48d2967f3bc35a713e716b9c64317a13f23",
+      "iso_url": "input/pfSense-CE-2.6.0-RELEASE-amd64.iso",
+      "output_directory": "output-vbox",
+      "shutdown_command": "shutdown -p now",
+      "ssh_password": "pfsense",
+      "ssh_port": "6736",
+      "ssh_timeout": "3600s",
+      "ssh_username": "root",
+      "type": "virtualbox-iso",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--boot1",
+          "disk"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--boot2",
+          "dvd"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "1"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "1024"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--natpf1",
+          "https,tcp,,7373,,7373"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--nic2",
+          "intnet"
+        ]
+      ],
+      "vm_name": "pfSense-CE-2.6.0",
+      "vrdp_bind_address": "127.0.0.1",
+      "vrdp_port_max": "3389",
+      "vrdp_port_min": "3389"
+    }
+  ],
+  "provisioners": [
+    {
+      "script": "config/provision.sh",
+      "type": "shell"
+    }
+  ]
+}
