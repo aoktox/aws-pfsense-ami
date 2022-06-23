@@ -11,3 +11,7 @@
 # packer
 output*
 *cache*
+.idea/
+packer-pfsense.iml
+output-*/
+packer_cache/
