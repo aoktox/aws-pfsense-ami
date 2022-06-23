@@ -1,42 +1,35 @@
-## Description
-Build and import a pfSense image for usage on AWS using Hashicorp Packer with Virtualbox backend.
+# Purpose
 
-## Components
-Tools used when writing this repo
-- Packer 1.4.3
-- Terraform v0.11.14
-    - provider.aws v2.40.0
-    - provider.random v2.2.1
-- VirtualBox 6.0.12 r133076 (Qt5.6.3)
-- aws-cli/1.16.193 Python/2.7.10 Darwin/18.7.0 botocore/1.12.183
+Build and import a pfSense image for usage on AWS using Hashicorp Packer with Virtualbox or KVM backend.
 
-## pfsense configuration
-pfSense config.xml contains the following modifications in config/config.xml (you can adjust this file before running packer command):
-- disabled LAN interface (single NIC mode)
-- Webinterface listens on port 8080
-- enabled OpenSSH on port 22
-- allow Webinterface and OpenSSH traffic on WAN interface from ANY source
-- disable HTTP_REFERERCHECK on Webinterface
+# Information
+It is not intended that the repository will see any updates, bugs fixes or further adaption to new pfSense versions. Feel free to do whatever you like with it in your own fork.
+
+There are areas in the repository which should be considered as a draft, not finished or rushed.
+
+# License
+Unlicense
+
+# Instructions
+* Download a copy of the pfSense image `pfSense-CE-2.6.0-RELEASE-amd64.iso` to the `input/` directory and then run `packer build pfsenese-<qemu|vbox>.json`.
+* `remote-qemu-vnc.sh|remote-vbox-rdp.sh` can be used to view the build process. Do not manually press keys during viewing.
+* Created images are placed in the `output-<qemu|vbox>/` directory.
+* `aws/import-role/import-role.sh` contains the required roles for the AWS import processes. Policies need to be modified to match your AWS account.
+* `aws/ec2-snapshot.sh` is prepeared for importing the created image to AWS. Need to be adjusted to meet your configuration.
+* Create an EC2 Instance from the imported image. Before starting it, attach a second network interface (ENI) to the instance, otherwise pfSense will not come up properly.
+
+Depending on the build machine and available resources it might be necessary to adjust timings in the jsons for the keystrokes. This files build nicely on a NVME backed setup.
 
 
-## How to use
-- Clone this repo
-- Set your AWS cli credential (you can use `awsudo`)
-- run `terraform apply` in repo root directory
-    - get s3 bucket name from `bucket_name` terraform output
-        - e.g : `bucket_name = vmimport-input-xxx`
-- run `packer build packer.json`
-    - Do not manually press keys inside virtualbox console.
-- Created images are placed in the `output` directory.
-    - Copy `vmdk` file from `output` directory to `vmimport s3 bucket`
-        - e.g : `aws s3 sync output s3://vmimport-input-xxx`
-- Make some adjustment on `import.json` file
-    - `BUCKET_PLACEHOLDER` should be replaced by s3 bucket name
-    - `KEY_PLACEHOLDER` should be replaced by vmdk file name from `output` directory
-- Run `aws ec2 import-snapshot --disk-container file://import.json`
-    - You will see json output contains `import-task-id`
-    - To view import progress, you can use `aws ec2 describe-import-snapshot-tasks --import-task-id import-snap-XXXXX`
-- DONE. You have successfully import virtualbox vm into aws snapshot.
-    - Wait, isn’t this a repo about creating ec2 image, not snapshot?
-        - It is indeed. Actually, packer provide `Amazon Import Post-Processor` that can automatically create ec2 AMI from packer artifact, and I implemented it in [3fffc0d](https://github.com/aoktox/aws-pfsense-ami/blob/3fffc0db6c00d282e71caa0fb05cbd948fc34bbc/packer.json#L90-L109) but somehow it gave me `"ClientError: No valid partitions. Not a valid volume."` and i have no time to debug that part.
-- To create AMI from snapshot, please refer to [this documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-ebs.html#creating-launching-ami-from-snapshot)
+# Configuration
+This pfSense config.xml contains the following modifications in `config/config.xml` compared to stock config:
+
+  * disabled dhcpd and dhcpdv6 (on LAN interface)
+  * Webinterface listens on port 7373
+  * OpenSSH listens on port 6736
+  * allow Webinterface and OpenSSH traffic on WAN interface from ANY source 
+  * allow private network connections on WAN interface (for packer & testing)
+  * disable HTTP_REFERERCHECK for accessing WebInterface through ANY ip/dns
+  * enabled login on console
+
+As soon as your instance is up and running, __update the settings to suit your needs__!
