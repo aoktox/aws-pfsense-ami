@@ -18,6 +18,11 @@ pfSense config.xml contains the following modifications in config/config.xml (yo
 - allow Webinterface and OpenSSH traffic on WAN interface from ANY source
 - disable HTTP_REFERERCHECK on Webinterface
 
+## pfSense iso image
+
+For the build, `pfSense-CE-2.4.4-RELEASE-p3-amd64.iso` is required. The official pfSense website does not provide a way to download it anymore. However, the working mirror is at [https://soft.uclv.edu.cu/pfSense/](https://soft.uclv.edu.cu/pfSense/) where the image can be found. 
+
+To verify that the mirror provides a valid image, you can download its `sha256sum` from pfSense offical repo [https://files.pfsense.org/hashes/](https://files.pfsense.org/hashes/) and compare with that generated for the image from the mirror.
 
 ## How to use
 - Clone this repo
